@@ -1,0 +1,74 @@
+package com.example.myapp;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.*;
+
+@RestController
+@RequestMapping("/api/auth")
+@CrossOrigin(origins = "http://localhost:3000")
+public class AuthController {
+
+    @Autowired
+    private UserRepository userRepo;
+
+    @Autowired
+    private EventRepository eventRepo;  // Repository for fetching events
+
+    // Signup method
+    @PostMapping("/signup")
+    public ResponseEntity<?> signup(@RequestBody User user) {
+        // Check if the username already exists
+        if (userRepo.findByUsername(user.getUsername()).isPresent()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Username already exists");
+        }
+
+        // If poojas are provided, map them to Event objects
+        List<Event> poojas = new ArrayList<>();
+        if (user.getPoojas() != null) {
+            for (Event pooja : user.getPoojas()) { // Iterate over Event objects
+                Optional<Event> eventOpt = eventRepo.findById(pooja.getId());  // Fetch the event by ID
+                if (eventOpt.isPresent()) {
+                    poojas.add(eventOpt.get());  // Add the Event object to the list
+                } else {
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid pooja ID: " + pooja.getId());
+                }
+            }
+        }
+
+        // Set the poojas (events) for the user
+        user.setPoojas(poojas);
+
+        // Save the user
+        User savedUser = userRepo.save(user);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);  // Respond with the saved user and 201 status
+    }
+
+    // Login method
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody Map<String, String> creds) {
+        Optional<User> userOpt = userRepo.findByUsername(creds.get("username"));
+        if (userOpt.isPresent() && userOpt.get().getPassword().equals(creds.get("password"))) {
+            return ResponseEntity.ok("Login successful");
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+        }
+    }
+
+    // Forgot password method
+    @PostMapping("/forgot-password")
+    public ResponseEntity<String> forgotPassword(@RequestBody Map<String, String> body) {
+        String username = body.get("username");
+        Optional<User> user = userRepo.findByUsername(username);
+        if (user.isPresent()) {
+            // In real app: send reset link/OTP
+            return ResponseEntity.ok("Password reset instructions sent.");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+        }
+    }
+}
