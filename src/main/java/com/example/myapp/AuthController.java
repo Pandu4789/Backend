@@ -60,15 +60,32 @@ public class AuthController {
     }
 
     // Forgot password method
-    @PostMapping("/forgot-password")
-    public ResponseEntity<String> forgotPassword(@RequestBody Map<String, String> body) {
+    @PostMapping("/validate-username")
+    public ResponseEntity<String> validateUsername(@RequestBody Map<String, String> body) {
         String username = body.get("username");
-        Optional<User> user = userRepo.findByUsername(username);
-        if (user.isPresent()) {
-            // In real app: send reset link/OTP
-            return ResponseEntity.ok("Password reset instructions sent.");
+        Optional<User> userOpt = userRepo.findByUsername(username);
+        if (userOpt.isPresent()) {
+            return ResponseEntity.ok("Username found");
         } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Username not found");
         }
     }
+    @PostMapping("/reset-password")
+public ResponseEntity<String> resetPassword(@RequestBody Map<String, String> body) {
+    String username = body.get("username");
+    String newPassword = body.get("newPassword");
+
+    Optional<User> userOpt = userRepo.findByUsername(username);
+
+    if (userOpt.isPresent()) {
+        User user = userOpt.get();
+        user.setPassword(newPassword); // Update the password
+        userRepo.save(user); // Save updated user
+        return ResponseEntity.ok("Password reset successful");
+    } else {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Username not found");
+    }
+}
+
+    
 }
