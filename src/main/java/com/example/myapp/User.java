@@ -25,7 +25,9 @@ public class User {
     )
     private List<Event> poojas;
 
-
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private Profile profile;
+    
 
     // Getters and Setters
     public Long getId() {
@@ -91,4 +93,6 @@ public class User {
     public void setPoojas(List<Event> poojas) {
         this.poojas = poojas;
     }
-}
+       
+    }
+
