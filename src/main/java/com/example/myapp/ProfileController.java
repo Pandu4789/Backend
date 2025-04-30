@@ -28,15 +28,12 @@ public class ProfileController {
         User user = userOpt.get();
         Optional<Profile> profileOpt = profileRepo.findByUserUsername(username);
 
-        Profile profile;
-        if (profileOpt.isPresent()) {
-            profile = profileOpt.get();
-        } else {
-            profile = new Profile();
-            profile.setUser(user);
-            profile.setMailId(user.getUsername());
-            profileRepo.save(profile);
-        }
+        Profile profile = profileOpt.orElseGet(() -> {
+            Profile newProfile = new Profile();
+            newProfile.setUser(user);
+            newProfile.setMailId(user.getUsername());
+            return profileRepo.save(newProfile);
+        });
 
         List<String> poojaNames = user.getPoojas().stream()
                 .map(Event::getName)
@@ -81,8 +78,7 @@ public class ProfileController {
             return ResponseEntity.status(404).body("Profile not found");
         }
 
-        String filePath = "/uploads/" + file.getOriginalFilename(); // Replace with actual path logic
-
+        String filePath = "/uploads/" + file.getOriginalFilename(); // Replace with real logic
         Profile profile = profileOpt.get();
         profile.setProfilePicture(filePath);
         profileRepo.save(profile);
@@ -90,7 +86,7 @@ public class ProfileController {
         return ResponseEntity.ok("Profile picture updated");
     }
 
-    // ✅ Updated inner static class with full constructor
+    // Inner static class for response
     public static class ProfileResponse {
         private Long id;
         private String username;
@@ -120,7 +116,6 @@ public class ProfileController {
             this.services = services;
         }
 
-        // Getters
         public Long getId() { return id; }
         public String getUsername() { return username; }
         public String getMailId() { return mailId; }

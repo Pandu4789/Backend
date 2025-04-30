@@ -10,7 +10,7 @@ import java.util.*;
 @RestController
 @RequestMapping("/api/auth")
 @CrossOrigin(origins = "http://localhost:3000")
-public class AuthController {
+public class UserController {
 
     @Autowired
     private UserRepository userRepo;
@@ -79,6 +79,26 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Username not found");
         }
     }
+    
+    @PostMapping("/updateUser")
+public ResponseEntity<?> updateUser(@RequestBody User updatedUser) {
+    Optional<User> existingUserOpt = userRepo.findByUsername(updatedUser.getUsername());
+    if (!existingUserOpt.isPresent()) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+    }
+
+    User existingUser = existingUserOpt.get();
+    existingUser.setFirstName(updatedUser.getFirstName());
+    existingUser.setLastName(updatedUser.getLastName());
+    existingUser.setPhone(updatedUser.getPhone());
+    existingUser.setAddress(updatedUser.getAddress());
+    existingUser.setPassword(updatedUser.getPassword());
+    existingUser.setUsername(updatedUser.getUsername()); // In case username is editable
+
+    userRepo.save(existingUser);
+    return ResponseEntity.ok("User updated successfully");
+}
+
     @PostMapping("/reset-password")
 public ResponseEntity<String> resetPassword(@RequestBody Map<String, String> body) {
     String username = body.get("username");
