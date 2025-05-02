@@ -50,22 +50,24 @@ public class UserController {
 
     // Login method
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody Map<String, String> creds) {
-        Optional<User> userOpt = userRepo.findByUsername(creds.get("username"));
-        if (userOpt.isPresent() && userOpt.get().getPassword().equals(creds.get("password"))) {
-            User user = userOpt.get();
-    
-            Map<String, Object> response = new HashMap<>();
-            response.put("username", user.getUsername());
-            response.put("firstName", user.getFirstName());
-            response.put("lastName", user.getLastName());
-            response.put("email", user.getUsername()); // Assuming username is an email; you can adjust this.
-    
-            return ResponseEntity.ok(response);  // Return JSON
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
-        }
+public ResponseEntity<?> login(@RequestBody Map<String, String> creds) {
+    Optional<User> userOpt = userRepo.findByUsername(creds.get("username"));
+    if (userOpt.isPresent() && userOpt.get().getPassword().equals(creds.get("password"))) {
+        // User is authenticated, prepare the response
+        User user = userOpt.get();
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("username", user.getUsername());
+        response.put("firstName", user.getFirstName());
+        response.put("lastName", user.getLastName());
+        response.put("role", user.getrole());  // Send the role in the response
+
+        return ResponseEntity.ok(response);
+    } else {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
     }
+}
+
     
 
     // Forgot password method

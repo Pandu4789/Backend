@@ -9,14 +9,14 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    private String role;
+    @Column(nullable = false)
     private String username;
     private String password;
     private String firstName;
     private String lastName;
     private String phone;
     private String address;
-
     @ManyToMany
     @JoinTable(
         name = "user_poojas",
@@ -93,6 +93,18 @@ public class User {
     public void setPoojas(List<Event> poojas) {
         this.poojas = poojas;
     }
-       
+    public String getrole() {
+        return role;
     }
+
+    public void setrole(String role) {
+        this.role = role;
+    }
+    public Profile getProfile() {
+        return profile;
+    }
+    public void setProfile(Profile profile) {
+        this.profile = profile;
+    }
+}
 
