@@ -22,8 +22,7 @@ public class NakshatramList {
 
             nakshatrams.forEach(name -> {
                 if (!repository.existsByName(name)) {
-                    Nakshatram nakshatram = new Nakshatram();
-                    nakshatram.setName(name);
+                    Nakshatram nakshatram = new Nakshatram(name);
                     repository.save(nakshatram);
                 }
             });
