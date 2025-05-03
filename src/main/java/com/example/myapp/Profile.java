@@ -1,5 +1,8 @@
 package com.example.myapp;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.*;
 @Entity
 public class Profile {
@@ -10,7 +13,10 @@ public class Profile {
 
     @OneToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")
+    @JsonBackReference
+    @JsonIgnore
     private User user;
+   
 
     private String profilePicture; // Store URL or path to image
     private String bio;

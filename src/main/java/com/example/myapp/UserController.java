@@ -48,6 +48,16 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);  // Respond with the saved user and 201 status
     }
 
+    @GetMapping("/priests")
+public ResponseEntity<List<User>> getPriests(
+        @RequestParam(required = false) String name,
+        @RequestParam(required = false) String phone,
+        @RequestParam(required = false) String poojaType) {
+
+    List<User> priests = userRepo.findPriestsWithFilters(name, phone, poojaType);
+    return ResponseEntity.ok(priests);
+}
+
     // Login method
     @PostMapping("/login")
 public ResponseEntity<?> login(@RequestBody Map<String, String> creds) {
