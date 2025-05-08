@@ -31,7 +31,7 @@ public class ProfileController {
         Profile profile = profileOpt.orElseGet(() -> {
             Profile newProfile = new Profile();
             newProfile.setUser(user);
-            newProfile.setMailId(user.getUsername());
+            // newProfile.setMailId(user.getemailID());
             return profileRepo.save(newProfile);
         });
 
