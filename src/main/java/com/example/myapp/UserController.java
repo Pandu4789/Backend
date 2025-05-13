@@ -51,13 +51,22 @@ public class UserController {
     @GetMapping("/priests")
 public ResponseEntity<List<User>> getPriests(
         @RequestParam(required = false) String name,
-        @RequestParam(required = false) String phone,
-        @RequestParam(required = false) String poojaType) {
+        @RequestParam(required = false) String phone, 
+        @RequestParam(required = false) String poojaType,
+        @RequestParam(required = false) Long id ) {
 
-    List<User> priests = userRepo.findPriestsWithFilters(name, phone, poojaType);
+    List<User> priests = userRepo.findPriestsWithFilters(name, phone, poojaType, id);
     return ResponseEntity.ok(priests);
 }
-
+@GetMapping("/priests/{id}")
+public ResponseEntity<User> getPriestById(@PathVariable Long id) {
+    Optional<User> priest = userRepo.findById(id);
+    if (priest.isPresent() && priest.get().getrole().equalsIgnoreCase("PRIEST")) {
+        return ResponseEntity.ok(priest.get());
+    } else {
+        return ResponseEntity.notFound().build();
+    }
+}
     // Login method
     @PostMapping("/login")
 public ResponseEntity<?> login(@RequestBody Map<String, String> creds) {

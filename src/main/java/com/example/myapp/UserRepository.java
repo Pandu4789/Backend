@@ -15,5 +15,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
            "AND (:poojaType IS NULL OR EXISTS (SELECT 1 FROM u.poojas p WHERE LOWER(p.name) LIKE LOWER(CONCAT('%', :poojaType, '%'))))")
     List<User> findPriestsWithFilters(@Param("name") String name,
                                       @Param("phone") String phone,
-                                      @Param("poojaType") String poojaType);
+                                      @Param("poojaType") String poojaType,
+                                      @Param("id") Long id);
+                                      
 }
