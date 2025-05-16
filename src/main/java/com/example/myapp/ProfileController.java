@@ -26,21 +26,24 @@ public class ProfileController {
         }
 
         User user = userOpt.get();
-        Optional<Profile> profileOpt = profileRepo.findByUserUsername(username);
 
-        Profile profile = profileOpt.orElseGet(() -> {
-            Profile newProfile = new Profile();
-            newProfile.setUser(user);
-            // newProfile.setMailId(user.getemailID());
-            return profileRepo.save(newProfile);
-        });
+        // Find or create profile if not exists
+        Profile profile = profileRepo.findByUserUsername(username)
+                .orElseGet(() -> {
+                    Profile newProfile = new Profile();
+                    newProfile.setUser(user);
+                    return profileRepo.save(newProfile);
+                });
 
+        // Convert user services (poojas) to list of strings
         List<String> poojaNames = user.getPoojas().stream()
                 .map(Event::getName)
                 .toList();
 
+        // Return full profile response
         return ResponseEntity.ok(new ProfileResponse(
-                profile.getId(),
+                profile.getId(),           // profileId
+                user.getId(),              // userId
                 user.getUsername(),
                 profile.getMailId(),
                 profile.getProfilePicture(),
@@ -78,7 +81,9 @@ public class ProfileController {
             return ResponseEntity.status(404).body("Profile not found");
         }
 
-        String filePath = "/uploads/" + file.getOriginalFilename(); // Replace with real logic
+        // Replace this with actual file-saving logic
+        String filePath = "/uploads/" + file.getOriginalFilename();
+
         Profile profile = profileOpt.get();
         profile.setProfilePicture(filePath);
         profileRepo.save(profile);
@@ -86,9 +91,10 @@ public class ProfileController {
         return ResponseEntity.ok("Profile picture updated");
     }
 
-    // Inner static class for response
+    // Inner static class for Profile response
     public static class ProfileResponse {
-        private Long id;
+        private Long profileId;
+        private Long userId;
         private String username;
         private String mailId;
         private String profilePicture;
@@ -100,10 +106,12 @@ public class ProfileController {
         private String phone;
         private List<String> services;
 
-        public ProfileResponse(Long id, String username, String mailId, String profilePicture, String bio,
-                               String firstName, String lastName, String address,
-                               String password, String phone, List<String> services) {
-            this.id = id;
+        public ProfileResponse(Long profileId, Long userId, String username, String mailId,
+                               String profilePicture, String bio, String firstName,
+                               String lastName, String address, String password,
+                               String phone, List<String> services) {
+            this.profileId = profileId;
+            this.userId = userId;
             this.username = username;
             this.mailId = mailId;
             this.profilePicture = profilePicture;
@@ -116,7 +124,8 @@ public class ProfileController {
             this.services = services;
         }
 
-        public Long getId() { return id; }
+        public Long getProfileId() { return profileId; }
+        public Long getUserId() { return userId; }
         public String getUsername() { return username; }
         public String getMailId() { return mailId; }
         public String getProfilePicture() { return profilePicture; }
