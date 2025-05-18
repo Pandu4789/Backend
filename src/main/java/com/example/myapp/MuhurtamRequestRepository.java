@@ -1,8 +1,9 @@
 package com.example.myapp;
+
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 
-@Repository
+import java.util.List;
+
 public interface MuhurtamRequestRepository extends JpaRepository<MuhurtamRequest, Long> {
+    List<MuhurtamRequest> findByPriestId(Long priestId);
 }
-

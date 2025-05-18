@@ -80,6 +80,7 @@ public ResponseEntity<?> login(@RequestBody Map<String, String> creds) {
         response.put("firstName", user.getFirstName());
         response.put("lastName", user.getLastName());
         response.put("role", user.getrole());  // Send the role in the response
+        response.put("userId", user.getId());
 
         return ResponseEntity.ok(response);
     } else {

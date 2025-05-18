@@ -33,5 +33,9 @@ public class MuhurtamRequest {
     private String note;
     
     private boolean viewed;
+
+     @ManyToOne
+    @JoinColumn(name = "priest_id", nullable = false)
+    private User priest;
 }
 

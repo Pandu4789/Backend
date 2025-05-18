@@ -25,4 +25,8 @@ public class AppointmentBooking {
 
     @Column(nullable = false)
     private String status; // "Pending", "Accepted", or "Rejected"
+
+     @ManyToOne
+    @JoinColumn(name = "priest_id", nullable = false)
+    private User priest; 
 }
