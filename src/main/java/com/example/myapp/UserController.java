@@ -114,6 +114,72 @@ public ResponseEntity<User> getPriestById(@PathVariable Long id) {
         return ResponseEntity.notFound().build();
     }
 }
+
+
+// Get all customers with optional filters (name, phone, etc.)
+@GetMapping("/customers")
+public ResponseEntity<List<User>> getCustomers(
+        @RequestParam(required = false) String name,
+        @RequestParam(required = false) String phone,
+        @RequestParam(required = false) Long id) {
+
+    List<User> customers = userRepo.findCustomersWithFilters(name, phone, id);
+    return ResponseEntity.ok(customers);
+}
+
+// Delete a customer by ID
+@DeleteMapping("/customers/{id}")
+public ResponseEntity<?> deleteCustomer(@PathVariable Long id) {
+    Optional<User> userOpt = userRepo.findById(id);
+    if (userOpt.isPresent() && userOpt.get().getrole().equalsIgnoreCase("CUSTOMER")) {
+        userRepo.deleteById(id);
+        return ResponseEntity.ok("Customer deleted successfully");
+    } else {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Customer not found");
+    }
+}
+
+// Update a customer by ID
+@PutMapping("/customers/{id}")
+public ResponseEntity<?> updateCustomer(@PathVariable Long id, @RequestBody User updatedUser) {
+    Optional<User> existingUserOpt = userRepo.findById(id);
+
+    if (!existingUserOpt.isPresent()) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Customer not found");
+    }
+
+    User existingUser = existingUserOpt.get();
+
+    // Only update if role is CUSTOMER
+    if (!existingUser.getrole().equalsIgnoreCase("CUSTOMER")) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User is not a customer");
+    }
+
+    // Update fields
+    existingUser.setFirstName(updatedUser.getFirstName());
+    existingUser.setLastName(updatedUser.getLastName());
+    existingUser.setPhone(updatedUser.getPhone());
+    existingUser.setAddress(updatedUser.getAddress());
+    existingUser.setUsername(updatedUser.getUsername());
+    existingUser.setPassword(updatedUser.getPassword());
+
+    // Customers likely don't have poojas, so no pooja update here
+
+    userRepo.save(existingUser);
+    return ResponseEntity.ok("Customer updated successfully");
+}
+
+// Get customer by ID
+@GetMapping("/customers/{id}")
+public ResponseEntity<User> getCustomerById(@PathVariable Long id) {
+    Optional<User> customer = userRepo.findById(id);
+    if (customer.isPresent() && customer.get().getrole().equalsIgnoreCase("CUSTOMER")) {
+        return ResponseEntity.ok(customer.get());
+    } else {
+        return ResponseEntity.notFound().build();
+    }
+}
+
     // Login method
     @PostMapping("/login")
 public ResponseEntity<?> login(@RequestBody Map<String, String> creds) {

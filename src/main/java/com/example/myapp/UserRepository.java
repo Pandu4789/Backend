@@ -18,4 +18,13 @@ public interface UserRepository extends JpaRepository<User, Long> {
                                       @Param("poojaType") String poojaType,
                                       @Param("id") Long id);
                                       
+ @Query("SELECT u FROM User u WHERE u.role = 'CUSTOMER' "
+     + "AND (:name IS NULL OR LOWER(u.firstName) LIKE LOWER(CONCAT('%', :name, '%')) "
+     + "OR LOWER(u.lastName) LIKE LOWER(CONCAT('%', :name, '%'))) "
+     + "AND (:phone IS NULL OR u.phone LIKE CONCAT('%', :phone, '%')) "
+     + "AND (:id IS NULL OR u.id = :id)")
+List<User> findCustomersWithFilters(@Param("name") String name,
+                                    @Param("phone") String phone,
+                                    @Param("id") Long id);
+
 }
