@@ -1,4 +1,6 @@
 package com.example.myapp;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -35,6 +37,7 @@ public class MuhurtamRequest {
     private boolean viewed;
 
      @ManyToOne
+     @JsonIgnore
     @JoinColumn(name = "priest_id", nullable = false)
     private User priest;
 }

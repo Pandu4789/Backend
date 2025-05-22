@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/muhurtam")
@@ -47,10 +47,20 @@ public class MuhurtamRequestController {
 
     // Get all requests
     @GetMapping("/all")
-    public ResponseEntity<List<MuhurtamRequest>> getAllRequests() {
+public ResponseEntity<?> getAllRequests() {
+    try {
         List<MuhurtamRequest> requests = muhurtamRequestRepository.findAll();
-        return ResponseEntity.ok(requests);
+        List<MuhurtamRequestDto> response = requests.stream()
+                .map(MuhurtamRequestDto::new)
+                .toList();
+        return ResponseEntity.ok(response);
+    } catch (Exception e) {
+        e.printStackTrace(); // Logs to console
+        return ResponseEntity.status(500).body("Error: " + e.getMessage());
     }
+}
+
+
 
     // Get requests by priest ID
     @GetMapping("/priest/{priestId}")
@@ -70,4 +80,23 @@ public class MuhurtamRequestController {
                 })
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
+   @PutMapping("/viewed/{id}")
+public ResponseEntity<String> updateViewedStatus(@PathVariable Long id, @RequestBody Map<String, Object> payload){
+    if (!payload.containsKey("viewed")) {
+        return ResponseEntity.badRequest().body("Missing 'viewed' field");
+    }
+
+    boolean viewed = Boolean.parseBoolean(payload.get("viewed").toString());
+
+    return muhurtamRequestRepository.findById(id)
+            .map(request -> {
+                request.setViewed(viewed);
+                muhurtamRequestRepository.save(request);
+                return ResponseEntity.ok("Viewed status updated to " + viewed);
+            })
+            .orElseGet(() -> ResponseEntity.notFound().build());
+}
+
+
+    
 }
