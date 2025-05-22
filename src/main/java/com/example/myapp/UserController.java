@@ -58,6 +58,53 @@ public ResponseEntity<List<User>> getPriests(
     List<User> priests = userRepo.findPriestsWithFilters(name, phone, poojaType, id);
     return ResponseEntity.ok(priests);
 }
+@DeleteMapping("/priests/{id}")
+public ResponseEntity<?> deletePriest(@PathVariable Long id) {
+    Optional<User> userOpt = userRepo.findById(id);
+    if (userOpt.isPresent() && userOpt.get().getrole().equalsIgnoreCase("PRIEST")) {
+        userRepo.deleteById(id);
+        return ResponseEntity.ok("Priest deleted successfully");
+    } else {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Priest not found");
+    }
+}
+@PutMapping("/priests/{id}")
+public ResponseEntity<?> updatePriest(@PathVariable Long id, @RequestBody User updatedUser) {
+    Optional<User> existingUserOpt = userRepo.findById(id);
+
+    if (!existingUserOpt.isPresent()) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Priest not found");
+    }
+
+    User existingUser = existingUserOpt.get();
+
+    // Only update if role is PRIEST
+    if (!existingUser.getrole().equalsIgnoreCase("PRIEST")) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User is not a priest");
+    }
+
+    // Update fields
+    existingUser.setFirstName(updatedUser.getFirstName());
+    existingUser.setLastName(updatedUser.getLastName());
+    existingUser.setPhone(updatedUser.getPhone());
+    existingUser.setAddress(updatedUser.getAddress());
+    existingUser.setUsername(updatedUser.getUsername());
+    existingUser.setPassword(updatedUser.getPassword());
+    
+    // Update poojas if provided
+    if (updatedUser.getPoojas() != null) {
+        List<Event> poojas = new ArrayList<>();
+        for (Event pooja : updatedUser.getPoojas()) {
+            Optional<Event> eventOpt = eventRepo.findById(pooja.getId());
+            eventOpt.ifPresent(poojas::add);
+        }
+        existingUser.setPoojas(poojas);
+    }
+
+    userRepo.save(existingUser);
+    return ResponseEntity.ok("Priest updated successfully");
+}
+
 @GetMapping("/priests/{id}")
 public ResponseEntity<User> getPriestById(@PathVariable Long id) {
     Optional<User> priest = userRepo.findById(id);
