@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class AppointmentBookingDto {
-    private String event;
+    private Long eventId;
     private String name;
     private String phone;
     private String address;
@@ -12,5 +12,6 @@ public class AppointmentBookingDto {
     private String date;
     private String start;
     private String end;
-    private Long priestId;  // matches your JSON payload field
+    private Long priestId;
 }
+
