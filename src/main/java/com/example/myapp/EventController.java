@@ -22,4 +22,9 @@ public class EventController {
     public Event createEvent(@RequestBody Event event) {
         return eventRepository.save(event);
     }
+    @DeleteMapping("/{id}")
+public void deleteEvent(@PathVariable Long id) {
+    eventRepository.deleteById(id);
+}
+
 }
