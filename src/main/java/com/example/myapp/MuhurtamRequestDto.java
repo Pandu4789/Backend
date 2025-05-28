@@ -1,8 +1,10 @@
 package com.example.myapp;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
 public class MuhurtamRequestDto {
     private Long id;
     private String name;

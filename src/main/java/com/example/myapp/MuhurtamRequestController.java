@@ -1,6 +1,7 @@
 package com.example.myapp;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,32 +19,39 @@ public class MuhurtamRequestController {
     private UserRepository userRepository;
 
     // Submit a new Muhurtam request using DTO
-    @PostMapping("/request")
-    public ResponseEntity<MuhurtamRequest> submitMuhurtamRequest(@RequestBody MuhurtamRequestDto dto) {
-        if (dto.getPriestId() == null) {
-            return ResponseEntity.badRequest().build();
-        }
-
-        User priest = userRepository.findById(dto.getPriestId())
-                .orElseThrow(() -> new RuntimeException("Priest not found with id " + dto.getPriestId()));
-
-        MuhurtamRequest request = MuhurtamRequest.builder()
-                .name(dto.getName())
-                .email(dto.getEmail())
-                .phone(dto.getPhone())
-                .address(dto.getAddress())
-                .nakshatram(dto.getNakshatram())
-                .date(dto.getDate())
-                .time(dto.getTime())
-                .place(dto.getPlace())
-                .note(dto.getNote())
-                .viewed(false)
-                .priest(priest)
-                .build();
-
-        MuhurtamRequest savedRequest = muhurtamRequestRepository.save(request);
-        return ResponseEntity.ok(savedRequest);
+   @PostMapping("/request")
+public ResponseEntity<?> submitMuhurtamRequest(@RequestBody MuhurtamRequestDto dto) {
+    if (dto.getPriestId() == null) {
+        return ResponseEntity.badRequest()
+                .body(Map.of("error", "Priest ID is required"));
     }
+
+    User priest = userRepository.findById(dto.getPriestId())
+            .orElse(null);
+
+    if (priest == null) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(Map.of("error", "Priest not found with id " + dto.getPriestId()));
+    }
+
+    MuhurtamRequest request = MuhurtamRequest.builder()
+            .name(dto.getName())
+            .email(dto.getEmail())
+            .phone(dto.getPhone())
+            .address(dto.getAddress())
+            .nakshatram(dto.getNakshatram())
+            .date(dto.getDate())
+            .time(dto.getTime())
+            .place(dto.getPlace())
+            .note(dto.getNote())
+            .viewed(false)
+            .priest(priest)
+            .build();
+
+    MuhurtamRequest savedRequest = muhurtamRequestRepository.save(request);
+    return ResponseEntity.ok(savedRequest);
+}
+
 
     // Get all requests
     @GetMapping("/all")
