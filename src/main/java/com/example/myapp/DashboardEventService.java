@@ -1,4 +1,5 @@
 package com.example.myapp;
+
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,5 +23,16 @@ public class DashboardEventService {
 
     public void deleteEvent(Long id) {
         repository.deleteById(id);
+    }
+
+    public DashboardEvent updateEvent(Long id, DashboardEvent updatedEvent) {
+        return repository.findById(id)
+            .map(event -> {
+                event.setTitle(updatedEvent.getTitle());
+                event.setPhotoUrl(updatedEvent.getPhotoUrl());
+                event.setDescription(updatedEvent.getDescription());
+                return repository.save(event);
+            })
+            .orElseThrow(() -> new RuntimeException("Event not found with id " + id));
     }
 }

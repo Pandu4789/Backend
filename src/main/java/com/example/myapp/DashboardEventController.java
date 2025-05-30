@@ -30,4 +30,9 @@ public class DashboardEventController {
     public void deleteEvent(@PathVariable Long id) {
         service.deleteEvent(id);
     }
+
+    @PutMapping("/{id}")
+    public DashboardEvent updateEvent(@PathVariable Long id, @RequestBody DashboardEvent updatedEvent) {
+        return service.updateEvent(id, updatedEvent);
+    }
 }
