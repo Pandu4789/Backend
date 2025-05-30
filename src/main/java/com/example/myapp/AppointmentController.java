@@ -15,16 +15,23 @@ public class AppointmentController {
     @Autowired
     private AppointmentRepository repository;
 
-    @PostMapping
-    public Appointment saveAppointment(@RequestBody Appointment appointment) {
-        System.out.println("Received appointment data: " + appointment);
-        return repository.save(appointment);
-    }
+    @PostMapping("/priest/{priestId}")
+public Appointment saveAppointment(@PathVariable Long priestId, @RequestBody Appointment appointment) {
+    System.out.println("Received appointment data: " + appointment);
+    appointment.setPriestId(priestId);  // Important: associate the appointment with the priest
+    return repository.save(appointment);
+}
+
     
 
     @GetMapping
     public List<Appointment> getAll() {
         return repository.findAll();
+    }
+
+     @GetMapping("/priest/{priestId}")
+    public List<Appointment> getByPriestId(@PathVariable Long priestId) {
+        return repository.findByPriestId(priestId);
     }
 
     @DeleteMapping("/{id}")

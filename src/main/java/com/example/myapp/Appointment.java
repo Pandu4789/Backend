@@ -17,7 +17,7 @@ public class Appointment {
     private String events;
     private LocalDateTime start;
     private LocalDateTime end;
-
+    private Long priestId;
     // Getters and setters
     public Long getId() {
         return id;
@@ -73,4 +73,10 @@ public class Appointment {
         this.end = end;
     }
    
+    public Long getPriestId() {
+        return priestId;
+    }
+    public void setPriestId(Long priestId) {
+        this.priestId = priestId;
+    }
 }
