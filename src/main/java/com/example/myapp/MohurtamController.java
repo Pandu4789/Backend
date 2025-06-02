@@ -3,6 +3,8 @@ package com.example.myapp;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -19,6 +21,10 @@ public class MohurtamController {
         this.panchangamRepository = panchangamRepository;
         this.dailyTimesRepository = dailyTimesRepository;
     }
+private String formatTimeRange(LocalTime start, LocalTime end) {
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("hh:mm a");
+    return start.format(formatter) + " - " + end.format(formatter);
+}
 
     @GetMapping("/nakshatram-schedules")
     public List<NakshatramResponseDTO> getNakshatramSchedules() {
@@ -38,13 +44,13 @@ public class MohurtamController {
             schedule.setMohurtam(p.getMohurtam());
             schedule.setTime(p.getTime());
             schedule.setNotes(p.getNotes());
+optionalDailyTimes.ifPresent(dt -> {
+    schedule.setYamagandam(formatTimeRange(dt.getYamagandamStart(), dt.getYamagandamEnd()));
+    schedule.setRahukalam(formatTimeRange(dt.getRahukalamStart(), dt.getRahukalamEnd()));
+    schedule.setVarjam(formatTimeRange(dt.getVarjamStart(), dt.getVarjamEnd()));
+    schedule.setDurmohurtam(formatTimeRange(dt.getDurmohurtamStart(), dt.getDurmohurtamEnd()));
+});
 
-            optionalDailyTimes.ifPresent(dt -> {
-                schedule.setYamagandam(dt.getYamagandam());
-                schedule.setRahukalam(dt.getRahukalam());
-                schedule.setVarjam(dt.getVarjam());
-                schedule.setDurmohurtam(dt.getDurmohurtam());
-            });
 
             groupedSchedules
                 .computeIfAbsent(p.getNakshatram(), k -> new ArrayList<>())
