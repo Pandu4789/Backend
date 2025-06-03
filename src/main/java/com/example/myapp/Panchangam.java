@@ -14,8 +14,8 @@ public class Panchangam {
     private String vaaram;
     private String nakshatram;
     private String lagnam;
-    private String Mohurtam;
-    private String Time;
+    private String mohurtam;
+    private String time;
     private String notes;
 
     // Getters & Setters
@@ -63,16 +63,16 @@ public class Panchangam {
         this.lagnam = lagnam;
     }
     public String getMohurtam() {
-        return Mohurtam;
+        return mohurtam;
     }
-    public void setMohurtam(String Mohurtam) {
-        this.Mohurtam = Mohurtam;
+    public void setMohurtam(String mohurtam) {
+        this.mohurtam = mohurtam;
     }
     public String getTime() {
-        return Time;
+        return time;
     }
-    public void setTime(String Time) {
-        this.Time = Time;
+    public void setTime(String time) {
+        this.time = time;
     }
     public String getNotes() {
         return notes;
