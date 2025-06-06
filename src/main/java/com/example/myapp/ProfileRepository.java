@@ -7,5 +7,7 @@ import java.util.Optional;
 
 @Repository
 public interface ProfileRepository extends JpaRepository<Profile, Long> {
-    Optional<Profile> findByUserUsername(String username);
+    // Assuming User entity's email is the primary way to find the linked profile
+    Optional<Profile> findByUserEmail(String email); // New method
+    // Optional<Profile> findByUserUsername(String username); // Old method, remove if not used
 }

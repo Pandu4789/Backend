@@ -11,16 +11,15 @@ public class Profile {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY) // Fetch lazily
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     @JsonBackReference
-    @JsonIgnore
+    @JsonIgnore // Ensure User does not try to serialize Profile back to User
     private User user;
    
-
     private String profilePicture; // Store URL or path to image
-    private String bio;
-    private String mailId;
+    private String bio; // This is now redundant if User/Priest also has bio. Consider removing.
+    private String mailId; // This is now redundant with User.email. Consider removing.
 
     // Getters and Setters
 
@@ -48,19 +47,19 @@ public class Profile {
         this.profilePicture = profilePicture;
     }
 
-    public String getBio() {
+    public String getBio() { // Consider deprecating/removing if Priest entity has bio
         return bio;
     }
 
-    public void setBio(String bio) {
+    public void setBio(String bio) { // Consider deprecating/removing if Priest entity has bio
         this.bio = bio;
     }
 
-    public String getMailId() {
+    public String getMailId() { // Consider deprecating/removing if User entity has email
         return mailId;
     }
 
-    public void setMailId(String mailId) {
+    public void setMailId(String mailId) { // Consider deprecating/removing if User entity has email
         this.mailId = mailId;
     }
 }

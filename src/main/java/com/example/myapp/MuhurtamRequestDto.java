@@ -18,7 +18,7 @@ public class MuhurtamRequestDto {
     private String note;
     private boolean viewed;
     private Long priestId;
-    private String priestUsername;
+    private String priestEmail;
 
     public MuhurtamRequestDto(MuhurtamRequest request) {
         this.id = request.getId();
@@ -33,6 +33,6 @@ public class MuhurtamRequestDto {
         this.note = request.getNote();
         this.viewed = request.isViewed();
         this.priestId = request.getPriest().getId();
-        this.priestUsername = request.getPriest().getUsername();
+        this.priestEmail = request.getPriest().getEmail();
     }
 }
