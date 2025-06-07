@@ -24,6 +24,11 @@ public class Priest {
     @Column(name = "service_name") 
     private List<String> servicesOffered; 
 
+    @ElementCollection
+     @CollectionTable(name = "priest_languages", joinColumns = @JoinColumn(name = "priest_id")) 
+    @Column(name = "language_name") 
+    private List<String> languagesSpoken;
+
     private boolean offersHoroscopeReading;
 
     // --- Getters and Setters ---
@@ -38,6 +43,9 @@ public class Priest {
 
     public List<String> getServicesOffered() { return servicesOffered; }
     public void setServicesOffered(List<String> servicesOffered) { this.servicesOffered = servicesOffered; }
+
+    public List<String> getLanguagesSpoken() { return languagesSpoken; }
+    public void setLanguagesSpoken(List<String> languagesSpoken) { this.languagesSpoken = languagesSpoken; }
 
     public boolean isOffersHoroscopeReading() { return offersHoroscopeReading; }
     public void setOffersHoroscopeReading(boolean offersHoroscopeReading) { this.offersHoroscopeReading = offersHoroscopeReading; }

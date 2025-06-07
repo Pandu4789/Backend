@@ -39,6 +39,7 @@ public class UserController {
         // Priest specific fields
         private String bio;
         private List<String> servicesOffered; // Assuming frontend sends names/strings directly now
+        private List<String> languagesSpoken; // New field for languages spoken
         private Boolean offersHoroscopeReading;
 
         // Getters and Setters for SignupRequest
@@ -68,6 +69,8 @@ public class UserController {
         public void setBio(String bio) { this.bio = bio; }
         public List<String> getServicesOffered() { return servicesOffered; }
         public void setServicesOffered(List<String> servicesOffered) { this.servicesOffered = servicesOffered; }
+        public List<String> getLanguagesSpoken() { return languagesSpoken; }
+        public void setLanguagesSpoken(List<String> languagesSpoken) { this.languagesSpoken = languagesSpoken; }
         public Boolean getOffersHoroscopeReading() { return offersHoroscopeReading; }
         public void setOffersHoroscopeReading(Boolean offersHoroscopeReading) { this.offersHoroscopeReading = offersHoroscopeReading; }
     }
@@ -101,6 +104,7 @@ public class UserController {
             priest.setUser(savedUser); // Link priest to the newly saved user
             priest.setBio(signupRequest.getBio());
             priest.setServicesOffered(signupRequest.getServicesOffered());
+            priest.setLanguagesSpoken(signupRequest.getLanguagesSpoken());
             priest.setOffersHoroscopeReading(signupRequest.getOffersHoroscopeReading() != null ? signupRequest.getOffersHoroscopeReading() : false);
             priestRepo.save(priest); // Save Priest details
             savedUser.setPriestDetails(priest); // Update user with priest details reference
@@ -199,6 +203,7 @@ public class UserController {
 
             priest.setBio(updatedUserRequest.getBio());
             priest.setServicesOffered(updatedUserRequest.getServicesOffered());
+            priest.setLanguagesSpoken(updatedUserRequest.getLanguagesSpoken());
             priest.setOffersHoroscopeReading(updatedUserRequest.getOffersHoroscopeReading() != null ? updatedUserRequest.getOffersHoroscopeReading() : false);
             priestRepo.save(priest);
             savedUser.setPriestDetails(priest); // Ensure relationship is set
@@ -234,6 +239,7 @@ public class UserController {
             if (user.getPriestDetails() != null) {
                 response.put("bio", user.getPriestDetails().getBio());
                 response.put("servicesOffered", user.getPriestDetails().getServicesOffered());
+                response.put("languagesSpoken", user.getPriestDetails().getLanguagesSpoken());
                 response.put("offersHoroscopeReading", user.getPriestDetails().isOffersHoroscopeReading());
             }
             return response;
@@ -293,6 +299,7 @@ public class UserController {
 
         priest.setBio(updatedUserRequest.getBio());
         priest.setServicesOffered(updatedUserRequest.getServicesOffered());
+        priest.setLanguagesSpoken(updatedUserRequest.getLanguagesSpoken());
         priest.setOffersHoroscopeReading(updatedUserRequest.getOffersHoroscopeReading() != null ? updatedUserRequest.getOffersHoroscopeReading() : false);
         priestRepo.save(priest);
         savedUser.setPriestDetails(priest); // Ensure relationship is set
@@ -322,6 +329,8 @@ public class UserController {
             if (user.getPriestDetails() != null) {
                 response.put("bio", user.getPriestDetails().getBio());
                 response.put("servicesOffered", user.getPriestDetails().getServicesOffered());
+                response.put("languagesSpoken", user.getPriestDetails().getLanguagesSpoken());
+
                 response.put("offersHoroscopeReading", user.getPriestDetails().isOffersHoroscopeReading());
             }
             return ResponseEntity.ok(response);
