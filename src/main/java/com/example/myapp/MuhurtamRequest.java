@@ -15,14 +15,15 @@ public class MuhurtamRequest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    @ManyToOne
+    @JoinColumn(name = "event_id")
+    private Event event;
+    
     private String name;
 
     private String email;
 
     private String phone;
-
-    private String address;
 
     private String nakshatram; 
     

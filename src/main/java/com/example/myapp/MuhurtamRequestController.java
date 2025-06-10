@@ -18,6 +18,9 @@ public class MuhurtamRequestController {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private EventRepository eventRepository;
+
     // Submit a new Muhurtam request using DTO
    @PostMapping("/request")
 public ResponseEntity<?> submitMuhurtamRequest(@RequestBody MuhurtamRequestDto dto) {
@@ -34,11 +37,23 @@ public ResponseEntity<?> submitMuhurtamRequest(@RequestBody MuhurtamRequestDto d
                 .body(Map.of("error", "Priest not found with id " + dto.getPriestId()));
     }
 
+    // Assuming you have an EventRepository to fetch Event by ID
+    Event event = null;
+    if (dto.getEvent() != null) {
+        // Replace eventRepository with your actual EventRepository bean
+        event = eventRepository.findById(dto.getEvent())
+                .orElse(null);
+        if (event == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "Event not found with id " + dto.getEvent()));
+        }
+    }
+
     MuhurtamRequest request = MuhurtamRequest.builder()
+            .event(event)
             .name(dto.getName())
             .email(dto.getEmail())
             .phone(dto.getPhone())
-            .address(dto.getAddress())
             .nakshatram(dto.getNakshatram())
             .date(dto.getDate())
             .time(dto.getTime())
