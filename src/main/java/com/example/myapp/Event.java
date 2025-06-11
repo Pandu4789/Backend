@@ -1,9 +1,14 @@
 package com.example.myapp;
 
 import jakarta.persistence.*;
+import lombok.*;
 
 @Entity
 @Table(name = "events")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Event {
 
     @Id
@@ -12,20 +17,12 @@ public class Event {
 
     private String name;
 
+    @Column(columnDefinition = "TEXT") // To allow for longer descriptions
+    private String description;
 
-    // Constructors
-    public Event() {}
+    private String category;
 
-    public Event(String name) {
-        this.name = name;
-    }
-
-    // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-
-   
+    private String duration;
     
+    private String estimatedPrice;
 }
