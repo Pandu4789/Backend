@@ -18,6 +18,7 @@ public class Appointment {
     private LocalDateTime start;
     private LocalDateTime end;
     private Long priestId;
+    private String note;
     // Getters and setters
     public Long getId() {
         return id;
@@ -78,5 +79,12 @@ public class Appointment {
     }
     public void setPriestId(Long priestId) {
         this.priestId = priestId;
+    }
+
+    public String getNote() {
+        return note;
+    }
+    public void setNote(String note) {
+        this.note = note;
     }
 }

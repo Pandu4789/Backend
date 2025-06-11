@@ -2,6 +2,10 @@ package com.example.myapp;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 
 import java.util.List;
 
@@ -16,11 +20,27 @@ public class AppointmentController {
     private AppointmentRepository repository;
 
     @PostMapping("/priest/{priestId}")
-public Appointment saveAppointment(@PathVariable Long priestId, @RequestBody Appointment appointment) {
-    System.out.println("Received appointment data: " + appointment);
-    appointment.setPriestId(priestId);  // Important: associate the appointment with the priest
-    return repository.save(appointment);
-}
+    public Appointment saveAppointment(@PathVariable Long priestId, @RequestBody AppointmentDto dto) {
+        // Combine the date and time strings into LocalDateTime objects
+        LocalDate datePart = LocalDate.parse(dto.getDate(), DateTimeFormatter.ISO_LOCAL_DATE);
+        LocalTime startTimePart = LocalTime.parse(dto.getStart(), DateTimeFormatter.ISO_LOCAL_TIME);
+        LocalTime endTimePart = LocalTime.parse(dto.getEnd(), DateTimeFormatter.ISO_LOCAL_TIME);
+
+        LocalDateTime startDateTime = LocalDateTime.of(datePart, startTimePart);
+        LocalDateTime endDateTime = LocalDateTime.of(datePart, endTimePart);
+
+        Appointment appointment = new Appointment();
+        appointment.setName(dto.getName());
+        appointment.setPhone(dto.getPhone());
+        appointment.setAddress(dto.getAddress());
+        appointment.setEvent(dto.getEvents());
+        appointment.setNote(dto.getNote());
+        appointment.setStartTime(startDateTime); // Set the LocalDateTime object
+        appointment.setEnd(endDateTime);     // Set the LocalDateTime object
+        appointment.setPriestId(priestId);
+
+        return repository.save(appointment);
+    }
 
     
 
