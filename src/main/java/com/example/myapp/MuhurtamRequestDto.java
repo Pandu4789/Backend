@@ -19,6 +19,7 @@ public class MuhurtamRequestDto {
     private boolean viewed;
     private Long priestId;
     private String priestEmail;
+    private Long userId; // The user who made the request, if applicable
 
     public MuhurtamRequestDto(MuhurtamRequest request) {
         this.id = request.getId();
@@ -34,5 +35,6 @@ public class MuhurtamRequestDto {
         this.viewed = request.isViewed();
         this.priestId = request.getPriest().getId();
         this.priestEmail = request.getPriest().getEmail();
+        this.userId = request.getUser() != null ? request.getUser().getId() : null;
     }
 }

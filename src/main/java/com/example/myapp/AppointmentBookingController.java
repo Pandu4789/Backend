@@ -42,6 +42,7 @@ public class AppointmentBookingController {
                 .start(dto.getStart())
                 .end(dto.getEnd())
                 .priest(priest)
+                .user(dto.getUserId() != null ? userRepository.findById(dto.getUserId()).orElse(null) : null)
                 .status("PENDING")
                 .build();
 
@@ -55,6 +56,7 @@ public class AppointmentBookingController {
 
         return appointments.stream().map(appointment -> {
             User priest = appointment.getPriest();
+            User user = appointment.getUser();
             return new AppointmentBookingResponseDto(
                     appointment.getId(),
                     appointment.getEvent() != null ? appointment.getEvent().getId() : null,
@@ -67,8 +69,8 @@ public class AppointmentBookingController {
                     appointment.getEnd(),
                     appointment.getStatus(),
                     priest != null ? priest.getId() : null,
-                    priest != null ? priest.getFirstName() + " " + priest.getLastName() : "Unknown"
-            );
+                    priest != null ? priest.getFirstName() + " " + priest.getLastName() : "Unknown",
+                    user != null ? user.getId() : null);
         }).toList();
     }
 
@@ -77,6 +79,12 @@ public class AppointmentBookingController {
     public List<AppointmentBooking> getAppointmentsByPriest(@PathVariable Long priestId) {
         return appointmentBookingRepository.findByPriestId(priestId);
     }
+
+// ✅ Get appointments by customer (user) ID
+@GetMapping("/customer/{customerId}")
+public List<AppointmentBooking> getAppointmentsByCustomer(@PathVariable Long customerId) {
+    return appointmentBookingRepository.findByUserId(customerId);
+}
 
     // ✅ Get only pending appointments
     @GetMapping("/pending")

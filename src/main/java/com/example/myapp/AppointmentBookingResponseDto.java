@@ -16,10 +16,11 @@ public class AppointmentBookingResponseDto {
     private String status;
     private Long priestId;
     private String priestName;
+    private Long userId; // The user who made the appointment, if applicable
 
     public AppointmentBookingResponseDto(Long id, Long eventId, String name, String phone, String address,
                                          String note, String date, String start, String end,
-                                         String status, Long priestId, String priestName) {
+                                         String status, Long priestId, String priestName, Long userId) {
         this.id = id;
         this.eventId = eventId;
         this.name = name;
@@ -32,5 +33,6 @@ public class AppointmentBookingResponseDto {
         this.status = status;
         this.priestId = priestId;
         this.priestName = priestName;
+        this.userId = userId; // Assuming this is the user ID who made the appointment
     }
 }

@@ -41,5 +41,10 @@ public class MuhurtamRequest {
      @JsonIgnore
     @JoinColumn(name = "priest_id", nullable = false)
     private User priest;
+
+    @ManyToOne
+    @JsonIgnore
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user; // The user who made the request, if applicable
 }
 

@@ -1,5 +1,7 @@
 package com.example.myapp;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -35,6 +37,13 @@ public class AppointmentBooking {
 
     // Many appointments can be associated with one priest
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "priest_id")
     private User priest;
+
+    // The user who made the appointment, if applicable
+    @ManyToOne
+    @JsonIgnore
+    @JoinColumn(name = "user_id")
+    private User user; // The user who made the appointment, if applicable
 }

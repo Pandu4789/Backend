@@ -1,8 +1,9 @@
 package com.example.myapp;
 
-import lombok.Data;
-
+import lombok.*;
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class AppointmentBookingDto {
     private Long eventId;
     private String name;
@@ -13,5 +14,6 @@ public class AppointmentBookingDto {
     private String start;
     private String end;
     private Long priestId;
+    private Long userId; 
 }
 
