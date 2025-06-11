@@ -8,7 +8,7 @@ public class AppointmentDto {
     private String name;
     private String phone;
     private String address;
-    private String events;
+     private Long eventId;
     private String note;
     private String date;  
     private String start;  

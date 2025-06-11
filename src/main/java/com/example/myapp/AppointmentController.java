@@ -19,6 +19,9 @@ public class AppointmentController {
     @Autowired
     private AppointmentRepository repository;
 
+    @Autowired
+    private EventRepository eventRepository;
+
     @PostMapping("/priest/{priestId}")
     public Appointment saveAppointment(@PathVariable Long priestId, @RequestBody AppointmentDto dto) {
         // Combine the date and time strings into LocalDateTime objects
@@ -28,12 +31,14 @@ public class AppointmentController {
 
         LocalDateTime startDateTime = LocalDateTime.of(datePart, startTimePart);
         LocalDateTime endDateTime = LocalDateTime.of(datePart, endTimePart);
+ Event event = eventRepository.findById(dto.getEventId())
+            .orElseThrow(() -> new RuntimeException("Event not found with ID: " + dto.getEventId()));
 
         Appointment appointment = new Appointment();
         appointment.setName(dto.getName());
         appointment.setPhone(dto.getPhone());
         appointment.setAddress(dto.getAddress());
-        appointment.setEvent(dto.getEvents());
+        appointment.setEventName(event.getName()); 
         appointment.setNote(dto.getNote());
         appointment.setStartTime(startDateTime); // Set the LocalDateTime object
         appointment.setEnd(endDateTime);     // Set the LocalDateTime object

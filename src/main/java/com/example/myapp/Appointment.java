@@ -14,7 +14,7 @@ public class Appointment {
     private String name;
     private String phone;
     private String address;
-    private String events;
+   private String eventName;
     private LocalDateTime start;
     private LocalDateTime end;
     private Long priestId;
@@ -43,13 +43,12 @@ public class Appointment {
     public void setPhone(String phone) {
         this.phone = phone;
     }
-    public String getEvent() {
-        return events;
-    }
-
-    public void setEvent(String events) {
-        this.events = events;
-    }
+   public String getEventName() {
+    return eventName;
+}
+public void setEventName(String eventName) {
+    this.eventName = eventName;
+}
     public String getAddress() {
         return address;
     }
