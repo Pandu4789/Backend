@@ -7,7 +7,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class MuhurtamRequestDto {
     private Long id;
-    private Long event; // Assuming Event ID is used to link to the event
+    private Long event;
+    private String eventName;          // <-- new field
     private String name;
     private String email;
     private String phone;
@@ -19,11 +20,18 @@ public class MuhurtamRequestDto {
     private boolean viewed;
     private Long priestId;
     private String priestEmail;
-    private Long userId; // The user who made the request, if applicable
+    private String priestName;
+    private Long userId;
 
     public MuhurtamRequestDto(MuhurtamRequest request) {
         this.id = request.getId();
-        this.event = request.getEvent() != null ? request.getEvent().getId() : null;
+        if (request.getEvent() != null) {
+            this.event = request.getEvent().getId();
+            this.eventName = request.getEvent().getName();  // <-- set eventName here
+        } else {
+            this.event = null;
+            this.eventName = null;
+        }
         this.name = request.getName();
         this.email = request.getEmail();
         this.phone = request.getPhone();
@@ -35,6 +43,7 @@ public class MuhurtamRequestDto {
         this.viewed = request.isViewed();
         this.priestId = request.getPriest().getId();
         this.priestEmail = request.getPriest().getEmail();
+        this.priestName = request.getPriest().getFirstName() + " " + request.getPriest().getLastName();
         this.userId = request.getUser() != null ? request.getUser().getId() : null;
     }
 }

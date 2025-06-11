@@ -46,4 +46,6 @@ public class AppointmentBooking {
     @JsonIgnore
     @JoinColumn(name = "user_id")
     private User user; // The user who made the appointment, if applicable
+
+    private String priestName; // Name of the priest for convenience in responses
 }

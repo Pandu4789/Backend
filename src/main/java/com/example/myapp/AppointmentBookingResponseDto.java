@@ -5,7 +5,7 @@ import lombok.Data;
 @Data
 public class AppointmentBookingResponseDto {
     private Long id;
-    private Long eventId;
+    private String eventName;  // <-- eventName is a String, not Long
     private String name;
     private String phone;
     private String address;
@@ -18,11 +18,11 @@ public class AppointmentBookingResponseDto {
     private String priestName;
     private Long userId; // The user who made the appointment, if applicable
 
-    public AppointmentBookingResponseDto(Long id, Long eventId, String name, String phone, String address,
+    public AppointmentBookingResponseDto(Long id, String eventName, String name, String phone, String address,
                                          String note, String date, String start, String end,
                                          String status, Long priestId, String priestName, Long userId) {
         this.id = id;
-        this.eventId = eventId;
+        this.eventName = eventName;
         this.name = name;
         this.phone = phone;
         this.address = address;
@@ -33,6 +33,6 @@ public class AppointmentBookingResponseDto {
         this.status = status;
         this.priestId = priestId;
         this.priestName = priestName;
-        this.userId = userId; // Assuming this is the user ID who made the appointment
+        this.userId = userId;
     }
 }
