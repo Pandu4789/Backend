@@ -10,5 +10,7 @@ public interface PriestAvailabilityRepository extends JpaRepository<PriestAvaila
     List<PriestAvailability> findByPriestId(Long priestId);
 
     // Delete all entries for a specific priest on a specific date
+        List<PriestAvailability> findByPriestIdAndSlotDate(Long priestId, LocalDate slotDate);
+        
     void deleteByPriestIdAndSlotDate(Long priestId, LocalDate slotDate);
 }
