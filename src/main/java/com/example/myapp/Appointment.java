@@ -61,7 +61,7 @@ public void setEventName(String eventName) {
         return start;
     }
 
-    public void setStartTime(LocalDateTime start) {
+    public void setStart(LocalDateTime start) {
         this.start = start;
     }
 

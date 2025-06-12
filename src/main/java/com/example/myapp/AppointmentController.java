@@ -41,7 +41,7 @@ public class AppointmentController {
         appointment.setAddress(dto.getAddress());
         appointment.setEventName(event.getName()); // store event name, as expected by backend
         appointment.setNote(dto.getNote());
-        appointment.setStartTime(startDateTime);
+        appointment.setStart(startDateTime);
         appointment.setEnd(endDateTime);
         appointment.setPriestId(priestId);
 

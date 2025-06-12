@@ -8,5 +8,7 @@ public interface AppointmentBookingRepository extends JpaRepository<AppointmentB
     List<AppointmentBooking> findByStatus(String status);
     List<AppointmentBooking> findByPriestId(Long priestId);
     List<AppointmentBooking> findByUserId(Long userId);
+    List<AppointmentBooking> findByPriestIdAndDateBetween(Long priestId, String start, String end);
+
     
 }

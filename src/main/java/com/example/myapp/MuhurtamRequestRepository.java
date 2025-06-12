@@ -7,4 +7,6 @@ import java.util.List;
 public interface MuhurtamRequestRepository extends JpaRepository<MuhurtamRequest, Long> {
     List<MuhurtamRequest> findByPriestId(Long priestId);
     List<MuhurtamRequest> findByUserId(Long userId);
+
+
 }
