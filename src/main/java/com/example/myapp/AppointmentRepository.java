@@ -6,6 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface AppointmentRepository extends JpaRepository<Appointment, Long> {
      List<Appointment> findByPriestId(Long priestId);
 List<Appointment> findByPriestIdAndStartBetween(Long priestId, LocalDateTime startDate, LocalDateTime endDate);
-List<Appointment> findByPriestIdAndDateBetween(Long priestId, LocalDateTime atStartOfDay, LocalDateTime atTime);
 }
 
