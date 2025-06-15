@@ -1,4 +1,4 @@
-package com.example.myapp;
+package com.example.myapp.panchang;
 import java.util.*;
 import java.time.LocalDate;
 import org.springframework.data.jpa.repository.JpaRepository;

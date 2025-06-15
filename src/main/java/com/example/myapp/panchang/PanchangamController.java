@@ -1,8 +1,9 @@
-package com.example.myapp;
+package com.example.myapp.panchang;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,24 +27,23 @@ public class PanchangamController {
         return repository.findAll();
     }
 
-    // ✅ Get by ID (optional for editing frontend)
-    @GetMapping("/{id}")
-    public Optional<Panchangam> getById(@PathVariable Long id) {
-        return repository.findById(id);
+    // ✅ Get by Date (optional for editing frontend)
+    @GetMapping("/{date}")
+    public Optional<Panchangam> getByDate(@PathVariable java.time.LocalDate date) {
+        return repository.findById(date);
     }
 
     // ✅ Update existing Panchangam
     @PutMapping("/{id}")
-    public Panchangam update(@PathVariable Long id, @RequestBody Panchangam updated) {
+    public Panchangam update(@PathVariable LocalDate id, @RequestBody Panchangam updated) {
         return repository.findById(id).map(p -> {
             p.setDate(updated.getDate());
-            p.setLagnam(updated.getLagnam());
-            p.setMohurtam(updated.getMohurtam());
+            p.setMuhurtamLagna(updated.getMuhurtamLagna());
             p.setNakshatram(updated.getNakshatram());
-            p.setPaksha(updated.getPaksha());
+            p.setPaksham(updated.getPaksham());
             p.setTithi(updated.getTithi());
-            p.setVaaram(updated.getVaaram());
-            p.setTime(updated.getTime());
+            p.setVara(updated.getVara());
+            p.setMuhurtamTime(updated.getMuhurtamTime());
             p.setNotes(updated.getNotes());
             return repository.save(p);
         }).orElseThrow(() -> new RuntimeException("Panchangam not found with id " + id));
@@ -51,7 +51,7 @@ public class PanchangamController {
 
     // ✅ Delete Panchangam
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
+    public void delete(@PathVariable LocalDate id) {
         repository.deleteById(id);
     }
 
