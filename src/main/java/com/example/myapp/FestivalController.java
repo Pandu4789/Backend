@@ -1,6 +1,9 @@
 package com.example.myapp;
 
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 
 @RestController
@@ -13,7 +16,16 @@ public class FestivalController {
     public FestivalController(FestivalRepository repository) {
         this.repository = repository;
     }
+@GetMapping("/month")
+    public List<FestivalEntity> getFestivalsByMonth(
+            @RequestParam int year,
+            @RequestParam int month) {
+        
+        LocalDate startDate = LocalDate.of(year, month, 1);
+        LocalDate endDate = startDate.with(TemporalAdjusters.lastDayOfMonth());
 
+        return repository.findByDateBetween(startDate, endDate);
+    }
     @GetMapping
     public List<FestivalEntity> getAll() {
         return repository.findAll();
