@@ -6,6 +6,7 @@ public class PoojaItemsDto {
     private String itemName;
     private int quantity;
     private double unitPrice;
+    private String unit;
 
     // ✅ Default constructor
     public PoojaItemsDto() {}
@@ -51,4 +52,6 @@ public class PoojaItemsDto {
     public void setUnitPrice(double unitPrice) {
         this.unitPrice = unitPrice;
     }
+     public String getUnit() { return unit; }
+    public void setUnit(String unit) { this.unit = unit; }
 }

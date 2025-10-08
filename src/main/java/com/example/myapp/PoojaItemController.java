@@ -3,8 +3,7 @@ package com.example.myapp;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.*;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/pooja-items")
@@ -17,84 +16,70 @@ public class PoojaItemController {
     @Autowired
     private PoojaItemsRepository poojaItemRepo;
 
-    // ✅ ADD ITEM TO EVENT (With duplicate name check per event)
     @PostMapping("/add")
     public ResponseEntity<?> addPoojaItemToEvent(@RequestBody PoojaItemsDto dto) {
-        Optional<Event> eventOpt = eventRepo.findById(dto.getEventId());
-        if (eventOpt.isEmpty()) {
-            return ResponseEntity.badRequest().body("Event not found");
+        Event event = eventRepo.findById(dto.getEventId())
+                .orElse(null);
+
+        if (event == null) {
+            return ResponseEntity.badRequest().body("Event with ID " + dto.getEventId() + " not found.");
         }
 
-        Event event = eventOpt.get();
-
-        // Check for duplicate item (case-insensitive) in this event
-        List<PoojaItems> existingItems = poojaItemRepo.findByEvents_Id(dto.getEventId());
+        // Duplicate check logic remains the same
+        List<PoojaItems> existingItems = poojaItemRepo.findByEvent_Id(dto.getEventId());
         boolean duplicateExists = existingItems.stream()
                 .anyMatch(item -> item.getItemName().equalsIgnoreCase(dto.getItemName()));
 
         if (duplicateExists) {
-            return ResponseEntity.badRequest().body("Duplicate item name not allowed for this event");
+            return ResponseEntity.badRequest().body("An item with this name already exists for this event.");
         }
 
-        PoojaItems item = new PoojaItems();
-        item.setItemName(dto.getItemName());
-        item.setQuantity(dto.getQuantity());
-        item.setUnitPrice(dto.getUnitPrice());
+        PoojaItems newItem = new PoojaItems();
+        newItem.setItemName(dto.getItemName());
+        newItem.setQuantity(dto.getQuantity());
+        newItem.setUnitPrice(dto.getUnitPrice());
+        newItem.setEvent(event);
+        // ✅ CHANGED: Set the unit from the DTO onto the new item entity
+        newItem.setUnit(dto.getUnit());
 
-        Set<Event> events = new HashSet<>();
-        events.add(event);
-        item.setEvents(events);
-
-        poojaItemRepo.save(item);
-
-        return ResponseEntity.ok(item);
+        PoojaItems savedItem = poojaItemRepo.save(newItem);
+        return ResponseEntity.ok(savedItem);
     }
 
-    // ✅ GET ITEMS BY EVENT
-    @GetMapping("/event/{eventId}")
-    public ResponseEntity<List<PoojaItems>> getItemsByEvent(@PathVariable Long eventId) {
-        List<PoojaItems> items = poojaItemRepo.findByEvents_Id(eventId);
-        return ResponseEntity.ok(items);
-    }
-
-    // ✅ UPDATE ITEM (Edit functionality)
     @PutMapping("/update/{itemId}")
     public ResponseEntity<?> updatePoojaItem(@PathVariable Long itemId, @RequestBody PoojaItemsDto dto) {
-        Optional<PoojaItems> itemOpt = poojaItemRepo.findById(itemId);
-        if (itemOpt.isEmpty()) {
+        PoojaItems item = poojaItemRepo.findById(itemId)
+                .orElse(null);
+        
+        if (item == null) {
             return ResponseEntity.badRequest().body("Item not found");
         }
 
-        PoojaItems item = itemOpt.get();
-
-        // Only update name if not duplicate within the same event
-        Long eventId = dto.getEventId();
-        if (eventId != null) {
-            List<PoojaItems> items = poojaItemRepo.findByEvents_Id(eventId);
-            boolean duplicateExists = items.stream()
-                    .anyMatch(i -> i.getItemName().equalsIgnoreCase(dto.getItemName()) && !i.getId().equals(itemId));
-
-            if (duplicateExists) {
-                return ResponseEntity.badRequest().body("Duplicate item name not allowed");
-            }
-        }
-
         item.setItemName(dto.getItemName());
         item.setQuantity(dto.getQuantity());
         item.setUnitPrice(dto.getUnitPrice());
-
-        poojaItemRepo.save(item);
-        return ResponseEntity.ok(item);
+        // ✅ CHANGED: Set the unit from the DTO when updating the item
+        item.setUnit(dto.getUnit());
+        
+        PoojaItems updatedItem = poojaItemRepo.save(item);
+        return ResponseEntity.ok(updatedItem);
     }
 
-    // ✅ DELETE ITEM
+    // --- GET and DELETE methods do not require changes ---
+
+    @GetMapping("/event/{eventId}")
+    public ResponseEntity<List<PoojaItems>> getItemsByEvent(@PathVariable Long eventId) {
+        List<PoojaItems> items = poojaItemRepo.findByEvent_Id(eventId);
+        return ResponseEntity.ok(items);
+    }
+
     @DeleteMapping("/delete/{itemId}")
     public ResponseEntity<?> deletePoojaItem(@PathVariable Long itemId) {
         if (!poojaItemRepo.existsById(itemId)) {
             return ResponseEntity.badRequest().body("Item not found");
         }
-
         poojaItemRepo.deleteById(itemId);
         return ResponseEntity.ok().build();
     }
 }
+

@@ -1,11 +1,8 @@
 package com.example.myapp;
 
-import java.util.HashSet;
-
+import com.fasterxml.jackson.annotation.JsonIgnore; // ✅ 1. ADD THIS IMPORT
 import jakarta.persistence.*;
 import lombok.*;
-import java.util.Set;
-
 
 @Entity
 @Table(name = "pooja_items")
@@ -21,21 +18,11 @@ public class PoojaItems {
     private String itemName;
     private int quantity;
     private double unitPrice;
+    private String unit;
 
-    @ManyToMany
-    @JoinTable(
-        name = "event_pooja_items",
-        joinColumns = @JoinColumn(name = "pooja_item_id"),
-        inverseJoinColumns = @JoinColumn(name = "event_id")
-    )
-   
-
-
-    private Set<Event> events = new HashSet<>();
-
-
-   
-   
-
-    // Getters and Setters
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "event_id", nullable = false)
+    @JsonIgnore // ✅ 2. ADD THIS ANNOTATION
+    private Event event;
 }
+
