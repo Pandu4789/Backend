@@ -33,7 +33,9 @@ public class DashboardEventService {
         }
         repository.deleteById(id);
     }
-
+   public List<DashboardEvent> getEventsByPriestId(Long priestId) {
+        return repository.findByPriestId(priestId);
+    }
     // Method to update an event
     public DashboardEvent updateEvent(Long id, DashboardEvent updatedEventDetails) {
         // Find the existing event in the database

@@ -27,4 +27,6 @@ public class DashboardEvent {
     // ✅ ADD THESE NEW FIELDS
     private String eventTime; // To store time like "18:00"
     private String imageUrl;  // To store the URL of the uploaded image
+        private Long priestId; 
+
 }
