@@ -20,15 +20,27 @@ public class MuhurtamFinderService {
 
     private final Map<String, Integer> nakshatraOrder = createNakshatraMap();
 
-    public List<MuhurtamFindResponseDto> findMuhurtams(List<String> janmaNakshatras) {
+    public MuhurtamApiResponse findMuhurtams(List<String> janmaNakshatras) {
         LocalDate today = LocalDate.now();
         LocalDate endDate = today.plusDays(90);
         List<MuhurtamFindResponseDto> result = new ArrayList<>();
 
-        Set<String> allFavorableNakshatras = new HashSet<>();
-        for (String nakshatra : janmaNakshatras) {
-            allFavorableNakshatras.addAll(getTaraBalamNakshatras(nakshatra));
-         }
+           Set<String> commonNakshatras;
+
+        if (janmaNakshatras == null || janmaNakshatras.isEmpty() || janmaNakshatras.get(0).isEmpty()) {
+            commonNakshatras = new HashSet<>(); // Handle empty or invalid input
+        } else {
+            // Start with the favorable nakshatrams of the first person
+            commonNakshatras = new HashSet<>(getTaraBalamNakshatras(janmaNakshatras.get(0)));
+            
+            // Loop through the rest of the people and keep only the common nakshatrams
+            for (int i = 1; i < janmaNakshatras.size(); i++) {
+                Set<String> currentPersonFavorable = getTaraBalamNakshatras(janmaNakshatras.get(i));
+                commonNakshatras.retainAll(currentPersonFavorable); // This performs the intersection
+            }
+        }
+
+        Set<String> allFavorableNakshatras = commonNakshatras;
 
             for (LocalDate date = today; !date.isAfter(endDate); date = date.plusDays(1)) {
             List<Panchangam> panchangams = panchangamRepo.findByDate(date);
@@ -139,7 +151,10 @@ public class MuhurtamFinderService {
             }
         }
 
-        return result;
+       return MuhurtamApiResponse.builder()
+                .dailyResults(result)
+                .favorableNakshatrams(allFavorableNakshatras)
+                .build();
     }
 
 private Set<String> getTaraBalamNakshatras(String janmaNakshatra) {

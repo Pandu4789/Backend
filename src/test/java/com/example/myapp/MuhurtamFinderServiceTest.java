@@ -32,11 +32,10 @@ class MuhurtamFinderServiceTest {
         today = LocalDate.now();
     }
 
-    // **1)** Green: favorable, within lagna, no conflict
     @Test
     void testGreenStatus() {
         var p = new Panchangam();
-        p.setNakshatram("Rohini"); // Ensure Rohini is favorable for input "Ashwini"
+        p.setNakshatram("Rohini");
         p.setTithi("Saptami");
         p.setMuhurtamLagna("mesha");
         p.setMuhurtamTime("05:15");
@@ -44,17 +43,20 @@ class MuhurtamFinderServiceTest {
         var d = new DailyTimes();
         d.setMeshaLagnaStart(LocalTime.of(5, 0));
         d.setMeshaLagnaEnd(LocalTime.of(6, 0));
-        // No conflicting periods set => default null cause no clashes
 
         when(panchangamRepo.findByDate(today)).thenReturn(List.of(p));
         when(dailyTimesRepo.findByDate(today)).thenReturn(Optional.of(d));
 
-        var list = service.findMuhurtams(List.of("Ashwini"));
-        assertEquals(1, list.size());
-        assertEquals("green", list.get(0).getStatus());
+        // ✅ CHANGED: The service returns the response object, not a list
+        var response = service.findMuhurtams(List.of("Ashwini"));
+        var dailyResults = response.getDailyResults();
+
+        // ✅ CHANGED: Assertions now run on the inner list
+        assertEquals(1, dailyResults.size());
+        assertEquals("green", dailyResults.get(0).getStatus());
+        assertNotNull(response.getFavorableNakshatrams()); // Also good to test this
     }
 
-    // **2)** Red: favorable, within lagna, but conflict present
     @Test
     void testRedStatusDueToConflict() {
         var p = new Panchangam();
@@ -67,47 +69,49 @@ class MuhurtamFinderServiceTest {
         d.setMeshaLagnaStart(LocalTime.of(5, 0));
         d.setMeshaLagnaEnd(LocalTime.of(6, 0));
         d.setRahukalamStart(LocalTime.of(5, 0));
-        d.setRahukalamEnd(LocalTime.of(5, 30)); // conflicts with muhurtamTime
+        d.setRahukalamEnd(LocalTime.of(5, 30));
 
         when(panchangamRepo.findByDate(today)).thenReturn(List.of(p));
         when(dailyTimesRepo.findByDate(today)).thenReturn(Optional.of(d));
-
-        var list = service.findMuhurtams(List.of("Ashwini"));
-        assertEquals(1, list.size());
-        assertEquals("red", list.get(0).getStatus());
+        
+        // ✅ CHANGED: The service returns the response object
+        var response = service.findMuhurtams(List.of("Ashwini"));
+        var dailyResults = response.getDailyResults();
+        
+        // ✅ CHANGED: Assertions now run on the inner list
+        assertEquals(1, dailyResults.size());
+        assertEquals("red", dailyResults.get(0).getStatus());
     }
 
-    // **3)** Orange: favorable, outside lagna, alternate found
     @Test
-    void testOrangeStatusWithAlternateLagna() {
+    void testOrangeStatus() {
         var p = new Panchangam();
         p.setNakshatram("Rohini");
         p.setTithi("Navami");
         p.setMuhurtamLagna("mesha");
-        p.setMuhurtamTime("04:00"); // before mesha lagna
+        p.setMuhurtamTime("04:00"); // outside mesha lagna
 
         var d = new DailyTimes();
         d.setMeshaLagnaStart(LocalTime.of(5, 0));
         d.setMeshaLagnaEnd(LocalTime.of(6, 0));
-
-        // Set mithuna lagna with length > 15 min and no conflicts
-        d.setMithunaLagnaStart(LocalTime.of(4, 0));
-        d.setMithunaLagnaEnd(LocalTime.of(5, 0));
-
+        
         when(panchangamRepo.findByDate(today)).thenReturn(List.of(p));
         when(dailyTimesRepo.findByDate(today)).thenReturn(Optional.of(d));
 
-        var list = service.findMuhurtams(List.of("Ashwini"));
-        assertEquals(1, list.size());
-        assertEquals("orange", list.get(0).getStatus());
-        assertNotNull(list.get(0).getAlternateTime());
+        // ✅ CHANGED: The service returns the response object
+        var response = service.findMuhurtams(List.of("Ashwini"));
+        var dailyResults = response.getDailyResults();
+
+        // ✅ CHANGED: Assertions now run on the inner list
+        assertEquals(1, dailyResults.size());
+        assertEquals("orange", dailyResults.get(0).getStatus()); // Updated this test to check for orange status as intended
+        assertNotNull(dailyResults.get(0).getAlternateTime());
     }
 
-    // **4)** Gray: non‑favorable => should be skipped entirely
     @Test
     void testNonFavorableSkipped() {
         var p = new Panchangam();
-        p.setNakshatram("Magha"); // Assume Magha is not favorable
+        p.setNakshatram("Magha"); // Not favorable for Ashwini
         p.setTithi("Dashami");
         p.setMuhurtamLagna("karka");
         p.setMuhurtamTime("06:00");
@@ -119,13 +123,16 @@ class MuhurtamFinderServiceTest {
         when(panchangamRepo.findByDate(today)).thenReturn(List.of(p));
         when(dailyTimesRepo.findByDate(today)).thenReturn(Optional.of(d));
 
-        var list = service.findMuhurtams(List.of("Ashwini"));
-        assertTrue(list.isEmpty(), "Entries with non-favorable nakshatra should be skipped");
+        // ✅ CHANGED: The service returns the response object
+        var response = service.findMuhurtams(List.of("Ashwini"));
+        
+        // ✅ CHANGED: Assertions now run on the inner list
+        assertTrue(response.getDailyResults().isEmpty(), "Entries with non-favorable nakshatra should be skipped");
     }
-@Test
-void sanityCheck() {
-    System.out.println("🟢 Sanity check ran!");
-    assertTrue(1 < 2);
-}
 
+    @Test
+    void sanityCheck() {
+        System.out.println("🟢 Sanity check ran!");
+        assertTrue(1 < 2);
+    }
 }
