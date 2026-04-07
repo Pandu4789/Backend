@@ -21,6 +21,7 @@ public class MuhurtamRequestDto {
     private Long priestId;
     private String priestEmail;
     private String priestName;
+    private String priestPhone;
     private Long userId;
 
     public MuhurtamRequestDto(MuhurtamRequest request) {
@@ -44,6 +45,7 @@ public class MuhurtamRequestDto {
         this.priestId = request.getPriest().getId();
         this.priestEmail = request.getPriest().getEmail();
         this.priestName = request.getPriest().getFirstName() + " " + request.getPriest().getLastName();
+        this.priestPhone = request.getPriest().getPhone();
         this.userId = request.getUser() != null ? request.getUser().getId() : null;
     }
 }

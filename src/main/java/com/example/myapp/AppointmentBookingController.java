@@ -43,11 +43,11 @@ public class AppointmentBookingController {
                 .priest(priest)
                 .user(user)
                 .status("PENDING")
-                .priestName(priest.getFirstName() + " " + priest.getLastName()) // Store priest name
+                .priestName(priest.getFirstName() + " " + priest.getLastName())
                 .build();
         
         AppointmentBooking savedAppointment = appointmentBookingRepository.save(appointment);
-        return convertToDto(savedAppointment); // Return DTO after creation
+        return convertToDto(savedAppointment);
     }
 
     @GetMapping("/all")
@@ -71,13 +71,6 @@ public class AppointmentBookingController {
                 .collect(Collectors.toList());
     }
 
-    @GetMapping("/pending")
-    public List<AppointmentBookingResponseDto> getPendingAppointments() {
-        return appointmentBookingRepository.findByStatus("PENDING").stream()
-                .map(this::convertToDto)
-                .collect(Collectors.toList());
-    }
-
     @PutMapping("/accept/{id}")
     public AppointmentBookingResponseDto acceptAppointment(@PathVariable Long id) {
         AppointmentBooking updatedAppointment = updateStatusInternal(id, "ACCEPTED");
@@ -95,7 +88,6 @@ public class AppointmentBookingController {
         appointmentBookingRepository.deleteById(id);
     }
 
-    // Private helper method to update status
     private AppointmentBooking updateStatusInternal(Long id, String status) {
         AppointmentBooking appointment = appointmentBookingRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Appointment not found with ID: " + id));
@@ -103,25 +95,27 @@ public class AppointmentBookingController {
         return appointmentBookingRepository.save(appointment);
     }
 
-    // Private helper method to convert an Entity to a Response DTO
+    // ✅ FIXED CONSTRUCTOR ARGUMENT ORDER
     private AppointmentBookingResponseDto convertToDto(AppointmentBooking appointment) {
         User priest = appointment.getPriest();
         User customer = appointment.getUser();
         
         return new AppointmentBookingResponseDto(
-                appointment.getId(),
-                appointment.getEvent() != null ? appointment.getEvent().getName() : null,
-                appointment.getName(),
-                appointment.getPhone(),
-                appointment.getAddress(),
-                appointment.getNote(),
-                appointment.getDate(),
-                appointment.getStart(),
-                appointment.getEnd(),
-                appointment.getStatus(),
-                priest != null ? priest.getId() : null,
-                appointment.getPriestName(), // Use the stored priest name
-                customer != null ? customer.getId() : null
+                appointment.getId(),                                  // 1. Long id
+                appointment.getEvent() != null ? appointment.getEvent().getName() : null, // 2. String eventName
+                appointment.getName(),                                // 3. String name
+                appointment.getPhone(),                               // 4. String phone
+                appointment.getAddress(),                             // 5. String address
+                appointment.getNote(),                                // 6. String note
+                appointment.getDate(),                                // 7. String date
+                appointment.getStart(),                               // 8. String start
+                appointment.getEnd(),                                 // 9. String end
+                appointment.getStatus(),                              // 10. String status
+                priest != null ? priest.getId() : null,               // 11. Long priestId
+                appointment.getPriestName(),                          // 12. String priestName
+                priest != null ? priest.getPhone() : "N/A",           // 13. String priestPhone
+                priest != null ? priest.getEmail() : "N/A",           // 14. String priestEmail
+                customer != null ? customer.getId() : null            // 15. Long userId
         );
     }
 }
