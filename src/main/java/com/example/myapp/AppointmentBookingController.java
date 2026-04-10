@@ -35,6 +35,7 @@ public class AppointmentBookingController {
                 .event(event)
                 .name(dto.getName())
                 .phone(dto.getPhone())
+                .email(dto.getEmail())
                 .address(dto.getAddress())
                 .note(dto.getNote())
                 .date(dto.getDate())
@@ -105,17 +106,18 @@ public class AppointmentBookingController {
                 appointment.getEvent() != null ? appointment.getEvent().getName() : null, // 2. String eventName
                 appointment.getName(),                                // 3. String name
                 appointment.getPhone(),                               // 4. String phone
-                appointment.getAddress(),                             // 5. String address
-                appointment.getNote(),                                // 6. String note
-                appointment.getDate(),                                // 7. String date
-                appointment.getStart(),                               // 8. String start
-                appointment.getEnd(),                                 // 9. String end
-                appointment.getStatus(),                              // 10. String status
-                priest != null ? priest.getId() : null,               // 11. Long priestId
-                appointment.getPriestName(),                          // 12. String priestName
-                priest != null ? priest.getPhone() : "N/A",           // 13. String priestPhone
-                priest != null ? priest.getEmail() : "N/A",           // 14. String priestEmail
-                customer != null ? customer.getId() : null            // 15. Long userId
+                appointment.getEmail(),                               // 5. String email
+                appointment.getAddress(),                             // 6. String address
+                appointment.getNote(),                                // 7. String note
+                appointment.getDate(),                                // 8. String date
+                appointment.getStart(),                               // 9. String start
+                appointment.getEnd(),                                 // 10. String end
+                appointment.getStatus(),                              // 11. String status
+                priest != null ? priest.getId() : null,               // 12. Long priestId
+                appointment.getPriestName(),                          // 13. String priestName
+                priest != null ? priest.getPhone() : "N/A",           // 14. String priestPhone
+                priest != null ? priest.getEmail() : "N/A",           // 15. String priestEmail
+                customer != null ? customer.getId() : null            // 16. Long userId
         );
     }
 }

@@ -38,6 +38,7 @@ public class AppointmentController {
         Appointment appointment = new Appointment();
         appointment.setName(dto.getName());
         appointment.setPhone(dto.getPhone());
+        appointment.setEmail(dto.getEmail());
         appointment.setAddress(dto.getAddress());
         appointment.setEventName(event.getName()); // store event name, as expected by backend
         appointment.setNote(dto.getNote());

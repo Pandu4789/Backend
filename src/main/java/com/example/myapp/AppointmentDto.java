@@ -7,6 +7,7 @@ import lombok.Data;
 public class AppointmentDto {
     private String name;
     private String phone;
+    private String email;
     private String address;
      private Long eventId;
     private String note;

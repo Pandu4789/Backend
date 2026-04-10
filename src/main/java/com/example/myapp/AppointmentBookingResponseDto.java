@@ -8,6 +8,7 @@ public class AppointmentBookingResponseDto {
     private String eventName;  // <-- eventName is a String, not Long
     private String name;
     private String phone;
+    private String email;
     private String address;
     private String note;
     private String date;
@@ -20,7 +21,7 @@ public class AppointmentBookingResponseDto {
     private String priestEmail;
     private Long userId; // The user who made the appointment, if applicable
 
-    public AppointmentBookingResponseDto(Long id, String eventName, String name, String phone, String address,
+    public AppointmentBookingResponseDto(Long id, String eventName, String name, String phone,String email, String address,
                                      String note, String date, String start, String end,
                                      String status, Long priestId, String priestName, 
                                      String priestPhone, String priestEmail, Long userId) {
@@ -28,6 +29,7 @@ public class AppointmentBookingResponseDto {
     this.eventName = eventName;
     this.name = name;
     this.phone = phone;
+    this.email = email;
     this.address = address;
     this.note = note;
     this.date = date;

@@ -8,6 +8,7 @@ public class AppointmentBookingDto {
     private Long eventId;
     private String name;
     private String phone;
+    private String email;
     private String address;
     private String note;
     private String date;
