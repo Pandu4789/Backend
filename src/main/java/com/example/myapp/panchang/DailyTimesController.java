@@ -10,7 +10,7 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/api/daily-times")
-@CrossOrigin(origins = "http://localhost:3000") // Enable CORS for your React app
+@CrossOrigin(origins = "http://localhost:3000")
 public class DailyTimesController {
 
     @Autowired
@@ -22,48 +22,57 @@ public class DailyTimesController {
     @Autowired
     private LagnaCalculator lagnaCalculator;
 
+    @Autowired
+    private PanchangCalculator panchangCalculator; // 👈 NEW: Injected for dynamic Kalam calculation
+
     /**
-     * UPDATED ENDPOINT: Now calculates all daily timings on-the-fly using dynamic
-     * coordinates.
-     * * How to test in Postman:
-     * GET
-     * http://localhost:8080/api/daily-times/calculate?date=2026-04-20&lat=36.1627&lon=-86.7816&tz=America/Chicago
+     * UPDATED ENDPOINT: Calculates all daily timings (Lagnas, Rahu Kalam,
+     * Yamagandam)
+     * on-the-fly using dynamic coordinates and timezone.
      */
     @GetMapping("/calculate")
     public ResponseEntity<?> calculateAllDailyTimes(
             @RequestParam String date,
-            @RequestParam(defaultValue = "32.7767") double lat, // Default: Dallas
-            @RequestParam(defaultValue = "-96.7970") double lon, // Default: Dallas
-            @RequestParam(defaultValue = "America/Chicago") String tz // Default: Chicago/Dallas TZ
-    ) {
+            @RequestParam(defaultValue = "32.7767") double lat,
+            @RequestParam(defaultValue = "-96.7970") double lon,
+            @RequestParam(defaultValue = "America/Chicago") String tz) {
         try {
             LocalDate parsedDate = LocalDate.parse(date);
 
-            // Step 1: Calculate Sunrise using the dynamic location and timezone provided.
+            // Step 1: Calculate Sunrise & Sunset using dynamic location
             SunriseSunsetCalculator.Timings sunTimings = sunriseSunsetCalculator.getSunriseSunset(parsedDate, lat, lon,
                     tz);
 
-            if (sunTimings.getSunrise() == null) {
+            if (sunTimings.getSunrise() == null || sunTimings.getSunset() == null) {
                 return ResponseEntity.status(404)
-                        .body(Map.of("error", "Could not calculate sunrise for this location/date."));
+                        .body(Map.of("error", "Could not calculate sun timings for this location/date."));
             }
 
-            // toLocalTime() ensures the sunrise is in the user's local clock context.
             LocalTime sunrise = sunTimings.getSunrise().toLocalTime();
+            LocalTime sunset = sunTimings.getSunset().toLocalTime();
 
-            // Step 2: Determine the Sun's zodiac sign.
-            // For now, this is hardcoded. In a full version, this would change based on the
-            // date.
-            String sunSignToday = "Mithuna";
-
-            // Step 3: Calculate the Lagna timings relative to this specific local sunrise.
-            Map<String, LagnaCalculator.TimeRange> lagnas = lagnaCalculator.calculateLagnasForDay(sunrise,
-                    sunSignToday);
-
-            // Step 4: Map the results to the DailyTimes object.
+            // Step 2: Initialize the DailyTimes object
             DailyTimes calculatedTimes = new DailyTimes();
             calculatedTimes.setDate(parsedDate);
+
+            // Step 3: DYNAMIC CALCULATION - Rahu Kalam & Yamagandam
+            // These are now calculated based on the day length, not fetched from a DB
+            Map<String, PanchangCalculator.TimeRange> kalams = panchangCalculator.calculateKalamPeriods(sunrise, sunset,
+                    parsedDate.getDayOfWeek());
+
+            calculatedTimes.setRahukalamStart(kalams.get("rahu").start);
+            calculatedTimes.setRahukalamEnd(kalams.get("rahu").end);
+            calculatedTimes.setYamagandamStart(kalams.get("yama").start);
+            calculatedTimes.setYamagandamEnd(kalams.get("yama").end);
+
+            // Step 4: Calculate Lagnas based on local sunrise
+            // Note: sunSignToday can be made dynamic later based on date
+            String sunSignToday = "Mithuna";
+            Map<String, LagnaCalculator.TimeRange> lagnas = lagnaCalculator.calculateLagnasForDay(sunrise,
+                    sunSignToday);
             populateLagnas(calculatedTimes, lagnas);
+
+            // You can also add logic for Durmuhurtham or Varjyam here if calculators exist
 
             return ResponseEntity.ok(calculatedTimes);
 
@@ -73,7 +82,7 @@ public class DailyTimesController {
         }
     }
 
-    // --- CRUD METHODS ---
+    // --- CRUD METHODS (For saved records) ---
 
     @GetMapping
     public List<DailyTimes> getAll() {
@@ -128,8 +137,7 @@ public class DailyTimesController {
     }
 
     /**
-     * Transfers calculated Lagna timings from the Map into the DailyTimes entity
-     * fields.
+     * Helper to map calculated Lagna values into the DailyTimes entity fields.
      */
     private void populateLagnas(DailyTimes dailyTimes, Map<String, LagnaCalculator.TimeRange> lagnas) {
         dailyTimes.setMeshaLagnaStart(lagnas.get("Mesha").start());
