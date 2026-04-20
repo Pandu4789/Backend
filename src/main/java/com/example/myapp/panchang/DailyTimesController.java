@@ -16,7 +16,6 @@ public class DailyTimesController {
     @Autowired
     private DailyTimesRepository dailyTimesRepository;
 
-    // ✅ NEW: Inject the calculators we need
     @Autowired
     private SunriseSunsetCalculator sunriseSunsetCalculator;
 
@@ -24,51 +23,57 @@ public class DailyTimesController {
     private LagnaCalculator lagnaCalculator;
 
     /**
-     * ✅ NEW ENDPOINT: Calculates all daily timings for a given date on-the-fly.
-     * This endpoint uses the calculators to generate a complete DailyTimes object
-     * without needing it to be saved in the database first.
-     *
-     * How to test in Postman:
-     * GET http://localhost:8080/api/daily-times/calculate?date=2025-06-16
+     * UPDATED ENDPOINT: Now calculates all daily timings on-the-fly using dynamic
+     * coordinates.
+     * * How to test in Postman:
+     * GET
+     * http://localhost:8080/api/daily-times/calculate?date=2026-04-20&lat=36.1627&lon=-86.7816&tz=America/Chicago
      */
     @GetMapping("/calculate")
-    public ResponseEntity<?> calculateAllDailyTimes(@RequestParam String date) {
+    public ResponseEntity<?> calculateAllDailyTimes(
+            @RequestParam String date,
+            @RequestParam(defaultValue = "32.7767") double lat, // Default: Dallas
+            @RequestParam(defaultValue = "-96.7970") double lon, // Default: Dallas
+            @RequestParam(defaultValue = "America/Chicago") String tz // Default: Chicago/Dallas TZ
+    ) {
         try {
             LocalDate parsedDate = LocalDate.parse(date);
 
-            // Step 1: Calculate Sunrise to use as input for the Lagna calculation.
-            SunriseSunsetCalculator.Timings sunTimings = sunriseSunsetCalculator.getSunriseSunset(parsedDate, 32.7767, -96.7970);
+            // Step 1: Calculate Sunrise using the dynamic location and timezone provided.
+            SunriseSunsetCalculator.Timings sunTimings = sunriseSunsetCalculator.getSunriseSunset(parsedDate, lat, lon,
+                    tz);
+
             if (sunTimings.getSunrise() == null) {
-                return ResponseEntity.status(404).body(Map.of("error", "Could not calculate sunrise for this date."));
+                return ResponseEntity.status(404)
+                        .body(Map.of("error", "Could not calculate sunrise for this location/date."));
             }
+
+            // toLocalTime() ensures the sunrise is in the user's local clock context.
             LocalTime sunrise = sunTimings.getSunrise().toLocalTime();
 
-            // Step 2: Determine the Sun's zodiac sign for the day.
-            // NOTE: For a full implementation, you would get this from your Panchangam data.
-            // For this example, we will hardcode it. For mid-June, the Sun is in Mithuna (Gemini).
+            // Step 2: Determine the Sun's zodiac sign.
+            // For now, this is hardcoded. In a full version, this would change based on the
+            // date.
             String sunSignToday = "Mithuna";
 
-            // Step 3: Calculate the Lagna timings.
-            Map<String, LagnaCalculator.TimeRange> lagnas = lagnaCalculator.calculateLagnasForDay(sunrise, sunSignToday);
+            // Step 3: Calculate the Lagna timings relative to this specific local sunrise.
+            Map<String, LagnaCalculator.TimeRange> lagnas = lagnaCalculator.calculateLagnasForDay(sunrise,
+                    sunSignToday);
 
-            // Step 4: Create a new DailyTimes object and populate it with the calculated data.
+            // Step 4: Map the results to the DailyTimes object.
             DailyTimes calculatedTimes = new DailyTimes();
             calculatedTimes.setDate(parsedDate);
-            
-            // This is a helper method to map the Lagna results to the entity fields.
             populateLagnas(calculatedTimes, lagnas);
 
-            // You could also populate Rahu Kalam, etc., here if you had calculators for them.
-            // For now, they will be null as they are not calculated by this endpoint.
-            
             return ResponseEntity.ok(calculatedTimes);
 
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("error", "Failed to calculate timings.", "details", e.getMessage()));
+            return ResponseEntity.badRequest()
+                    .body(Map.of("error", "Failed to calculate timings.", "details", e.getMessage()));
         }
     }
 
-    // --- YOUR EXISTING CRUD METHODS ---
+    // --- CRUD METHODS ---
 
     @GetMapping
     public List<DailyTimes> getAll() {
@@ -77,7 +82,6 @@ public class DailyTimesController {
 
     @GetMapping("/by-date/{date}")
     public ResponseEntity<?> getDailyTimesByDate(@PathVariable String date) {
-        // This method remains unchanged. It fetches SAVED data from the DB.
         try {
             LocalDate parsedDate = LocalDate.parse(date);
             Optional<DailyTimes> dailyTimesOpt = dailyTimesRepository.findByDate(parsedDate);
@@ -90,33 +94,42 @@ public class DailyTimesController {
 
     @PostMapping
     public ResponseEntity<?> createDailyTimes(@RequestBody DailyTimes dailyTimes) {
-        // This method remains unchanged. It SAVES data to the DB.
         try {
             Optional<DailyTimes> existing = dailyTimesRepository.findByDate(dailyTimes.getDate());
             if (existing.isPresent()) {
-                return ResponseEntity.status(409).body(Map.of("error", "Record already exists for date: " + dailyTimes.getDate()));
+                return ResponseEntity.status(409)
+                        .body(Map.of("error", "Record already exists for date: " + dailyTimes.getDate()));
             }
             DailyTimes saved = dailyTimesRepository.save(dailyTimes);
             return ResponseEntity.ok(saved);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("error", "Could not save record.", "details", e.getMessage()));
+            return ResponseEntity.badRequest()
+                    .body(Map.of("error", "Could not save record.", "details", e.getMessage()));
         }
     }
-    
-    // (PUT and DELETE methods remain unchanged)
+
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateDailyTimes(@PathVariable Long id, @RequestBody DailyTimes updatedData) { // ... unchanged
-        return ResponseEntity.ok().build(); // Placeholder
-    }
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteDailyTimes(@PathVariable Long id) { // ... unchanged
-        return ResponseEntity.ok().build(); // Placeholder
+    public ResponseEntity<?> updateDailyTimes(@PathVariable Long id, @RequestBody DailyTimes updatedData) {
+        return dailyTimesRepository.findById(id)
+                .map(existing -> {
+                    updatedData.setId(id);
+                    return ResponseEntity.ok(dailyTimesRepository.save(updatedData));
+                })
+                .orElse(ResponseEntity.notFound().build());
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteDailyTimes(@PathVariable Long id) {
+        if (dailyTimesRepository.existsById(id)) {
+            dailyTimesRepository.deleteById(id);
+            return ResponseEntity.ok(Map.of("message", "Deleted successfully"));
+        }
+        return ResponseEntity.notFound().build();
+    }
 
     /**
-     * Helper method to transfer calculated Lagna timings from the Map
-     * into the fields of the DailyTimes entity.
+     * Transfers calculated Lagna timings from the Map into the DailyTimes entity
+     * fields.
      */
     private void populateLagnas(DailyTimes dailyTimes, Map<String, LagnaCalculator.TimeRange> lagnas) {
         dailyTimes.setMeshaLagnaStart(lagnas.get("Mesha").start());

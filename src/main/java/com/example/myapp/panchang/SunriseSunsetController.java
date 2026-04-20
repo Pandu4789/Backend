@@ -1,7 +1,7 @@
 package com.example.myapp.panchang;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity; // Import ResponseEntity
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -16,26 +16,33 @@ public class SunriseSunsetController {
     private SunriseSunsetCalculator calculator;
 
     @GetMapping
-    public ResponseEntity<?> getSunriseSunset( // Return type changed to ResponseEntity<?>
-        @RequestParam("date") String dateStr,
-        @RequestParam(defaultValue = "32.7767") double lat, // Dallas Latitude
-        @RequestParam(defaultValue = "-96.7970") double lon  // Dallas Longitude
+    public ResponseEntity<?> getSunriseSunset(
+            @RequestParam("date") String dateStr,
+            @RequestParam(defaultValue = "32.7767") double lat,
+            @RequestParam(defaultValue = "-96.7970") double lon,
+            @RequestParam(defaultValue = "America/Chicago") String tz // 👈 Dynamic Timezone
     ) {
-        LocalDate date = LocalDate.parse(dateStr, DateTimeFormatter.ISO_LOCAL_DATE);
-        SunriseSunsetCalculator.Timings timings = calculator.getSunriseSunset(date, lat, lon);
+        try {
+            LocalDate date = LocalDate.parse(dateStr, DateTimeFormatter.ISO_LOCAL_DATE);
 
-        // ✅ ADD THIS CHECK to handle cases with no sunrise/sunset
-        if (timings.getSunrise() == null || timings.getSunset() == null) {
-            // Return a 404 Not Found response with a clear error message
-            return ResponseEntity.status(404)
-                .body(Map.of("error", "Sunrise or sunset does not occur on this day at this location."));
+            // Pass the timezone string to the calculator
+            SunriseSunsetCalculator.Timings timings = calculator.getSunriseSunset(date, lat, lon, tz);
+
+            if (timings.getSunrise() == null || timings.getSunset() == null) {
+                return ResponseEntity.status(404)
+                        .body(Map.of("error", "Sunrise or sunset does not occur on this day at this location."));
+            }
+
+            Map<String, String> result = new HashMap<>();
+            // toLocalTime() now automatically reflects the user's specific timezone
+            result.put("sunrise", timings.getSunrise().toLocalTime().toString());
+            result.put("sunset", timings.getSunset().toLocalTime().toString());
+
+            return ResponseEntity.ok(result);
+
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("error", "Invalid parameters: " + e.getMessage()));
         }
-
-        // This code only runs if the timings are valid
-        Map<String, String> result = new HashMap<>();
-        result.put("sunrise", timings.getSunrise().toLocalTime().toString());
-        result.put("sunset", timings.getSunset().toLocalTime().toString());
-        
-        return ResponseEntity.ok(result); // Return a 200 OK response
     }
 }
